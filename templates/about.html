@@ -1,28 +1,35 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <div class="row">
-    <div class="col-lg-8 mx-auto">
-        <h1>About This Flask App</h1>
-        <p class="lead">This is a demonstration Flask application showcasing a complete project structure.</p>
-        
-        <h3>Features</h3>
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item">✅ Multiple routes with different HTTP methods</li>
-            <li class="list-group-item">✅ Template inheritance with Jinja2</li>
-            <li class="list-group-item">✅ Static file serving (CSS, JS)</li>
-            <li class="list-group-item">✅ Form handling</li>
-            <li class="list-group-item">✅ JSON API endpoints</li>
-            <li class="list-group-item">✅ Error handling (404 pages)</li>
-            <li class="list-group-item">✅ Bootstrap integration</li>
-            <li class="list-group-item">✅ Responsive design</li>
-        </ul>
+  <div class="col-lg-8 mx-auto">
+    <h1>About This Flask App</h1>
+    <p class="lead">
+      This is a demonstration Flask application showcasing a complete project
+      structure.
+    </p>
 
-        <h3 class="mt-4">Project Structure</h3>
-        <pre class="bg-light p-3 rounded">
+    <h3>Features</h3>
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item">
+        ✅ Multiple routes with different HTTP methods
+      </li>
+      <li class="list-group-item">✅ Template inheritance with Jinja2</li>
+      <li class="list-group-item">✅ Static file serving (CSS, JS)</li>
+      <li class="list-group-item">✅ Form handling</li>
+      <li class="list-group-item">✅ JSON API endpoints</li>
+      <li class="list-group-item">✅ Error handling (404 pages)</li>
+      <li class="list-group-item">✅ Bootstrap integration</li>
+      <li class="list-group-item">✅ Responsive design</li>
+    </ul>
+
+    <h3 class="mt-4">Project Structure</h3>
+    <pre class="bg-light p-3 rounded">
 flask-app/
 ├── app.py              # Main Flask application
 ├── requirements.txt    # Python dependencies
+├── Dockerfile          # Docker container configuration
+├── docker-compose.yml  # Docker Compose orchestration
+├── .dockerignore       # Docker build exclusions
+├── .gitignore          # Git exclusions
 ├── templates/          # Jinja2 templates
 │   ├── base.html      # Base template
 │   ├── index.html     # Home page
@@ -34,12 +41,17 @@ flask-app/
     │   └── style.css  # Custom styles
     └── js/
         └── main.js    # JavaScript functions
-        </pre>
+        </pre
+    >
 
-        <div class="mt-4">
-            <a href="{{ url_for('contact') }}" class="btn btn-primary">Get in Touch</a>
-            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Back to Home</a>
-        </div>
+    <div class="mt-4">
+      <a href="{{ url_for('contact') }}" class="btn btn-primary"
+        >Get in Touch</a
+      >
+      <a href="{{ url_for('index') }}" class="btn btn-outline-secondary"
+        >Back to Home</a
+      >
     </div>
+  </div>
 </div>
 {% endblock %}
