@@ -34,7 +34,6 @@ flask-app/
 │   ├── base.html      # Base template
 │   ├── index.html     # Home page
 │   ├── about.html     # About page
-│   ├── contact.html   # Contact form
 │   └── 404.html       # Error page
 └── static/            # Static files
     ├── css/
@@ -45,9 +44,6 @@ flask-app/
     >
 
     <div class="mt-4">
-      <a href="{{ url_for('contact') }}" class="btn btn-primary"
-        >Get in Touch</a
-      >
       <a href="{{ url_for('index') }}" class="btn btn-outline-secondary"
         >Back to Home</a
       >

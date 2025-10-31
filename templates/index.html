@@ -4,10 +4,10 @@
 <div class="row">
     <div class="col-lg-8 mx-auto">
         <div class="jumbotron bg-light p-5 rounded">
-            <h1 class="display-4">Welcome to Flask App!</h1>
-            <p class="lead">This is a simple Flask application with a complete structure including routes, templates, and static files.</p>
+            <h1 class="display-4">Welcome to Your Personal Finance System!</h1>
+            <p class="lead">Hello {{ current_user.name }}! Manage your personal finances securely with Google authentication.</p>
             <hr class="my-4">
-            <p>Get started by exploring the different pages or check out the API endpoint.</p>
+            <p>Your secure personal finance dashboard. Explore your profile or check out the personalized API data.</p>
             <a class="btn btn-primary btn-lg" href="{{ url_for('about') }}" role="button">Learn More</a>
             <button class="btn btn-secondary btn-lg" onclick="loadApiData()">Load API Data</button>
         </div>
@@ -18,8 +18,8 @@
     <div class="col-md-4">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Routes</h5>
-                <p class="card-text">Multiple routes are set up including home, about, contact, and API endpoints.</p>
+                <h5 class="card-title">Secure Routes</h5>
+                <p class="card-text">All routes require Google authentication including home, about, profile, and API endpoints.</p>
             </div>
         </div>
     </div>

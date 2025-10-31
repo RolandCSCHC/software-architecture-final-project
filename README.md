@@ -1,38 +1,40 @@
-# Flask Web Application
+# Personal Finance Management System
 
-A complete Flask web application with a modern structure, featuring multiple routes, templates, static files, and API endpoints.
+A Flask-based personal finance management system with Google OAuth authentication, featuring secure user authentication, profile management, and a modern responsive interface.
 
 ## Features
 
-- 🏠 **Multiple Routes**: Home, About, Contact, and API endpoints
+- 🔐 **Google OAuth Authentication**: Secure login with Google accounts
+- 👤 **User Profile Management**: View and manage user profile information
+- 🏠 **Multiple Routes**: Home, About, Profile, and API endpoints
 - 🎨 **Template Inheritance**: Jinja2 templates with base layout
 - 💅 **Modern UI**: Bootstrap 5 integration with custom CSS
 - 📱 **Responsive Design**: Mobile-friendly interface
-- 📝 **Form Handling**: Contact form with validation
 - 🔌 **API Endpoints**: JSON API for data exchange
 - ❌ **Error Handling**: Custom 404 error pages
-- ⚡ **Interactive**: JavaScript functionality and AJAX calls
+- 🔒 **Session Management**: Secure user session handling with Flask-Login
 
 ## Project Structure
 
 ```
-flask-app/
-├── app.py              # Main Flask application
-├── requirements.txt    # Python dependencies
+personal-finance-system/
+├── app.py              # Main Flask application with OAuth
+├── requirements.txt    # Python dependencies (includes OAuth packages)
 ├── Dockerfile          # Docker container configuration
-├── docker-compose.yml  # Docker Compose orchestration
-├── .dockerignore       # Docker build exclusions
-├── templates/          # Jinja2 templates
-│   ├── base.html      # Base template with navigation
-│   ├── index.html     # Home page
-│   ├── about.html     # About page
-│   ├── contact.html   # Contact form
-│   └── 404.html       # Error page
-└── static/            # Static files
+├── docker-compose.yml  # Docker Compose with environment variables
+├── .env               # Environment variables (OAuth credentials)
+├── .dockerignore      # Docker build exclusions
+├── templates/         # Jinja2 templates
+│   ├── base.html     # Base template with auth navigation
+│   ├── index.html    # Home page
+│   ├── about.html    # About page
+│   ├── profile.html  # User profile page
+│   └── 404.html      # Error page
+└── static/           # Static files
     ├── css/
-    │   └── style.css  # Custom styles
+    │   └── style.css # Custom styles
     └── js/
-        └── main.js    # JavaScript functions
+        └── main.js   # JavaScript functions
 ```
 
 ## Setup Instructions
@@ -52,15 +54,23 @@ flask-app/
    cd software-architecture-final-project
    ```
 
-2. **Build and run with Docker Compose**
+2. **Set up environment variables**
+
+   Create a `.env` file in the project root:
+   ```bash
+   GOOGLE_CLIENT_ID=your_google_client_id_here
+   GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+   ```
+
+3. **Build and run with Docker Compose**
 
    ```bash
    docker-compose up --build
    ```
 
-3. **Access the application**
+4. **Access the application**
    ```
-   http://localhost:5001
+   http://127.0.0.1:5001
    ```
 
 #### Docker Commands
@@ -93,7 +103,15 @@ flask-app/
    venv\Scripts\activate     # On Windows
    ```
 
-3. **Install dependencies**
+3. **Set up environment variables**
+
+   Create a `.env` file in the project root:
+   ```bash
+   GOOGLE_CLIENT_ID=your_google_client_id_here
+   GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+   ```
+
+4. **Install dependencies**
    ```bash
    pip install -r requirements.txt
    ```
@@ -121,7 +139,10 @@ The application will be running in debug mode, which means:
 
 - **`/`** - Home page with feature overview
 - **`/about`** - About page with project information
-- **`/contact`** - Contact form (GET/POST)
+- **`/login`** - Google OAuth login
+- **`/logout`** - User logout (requires authentication)
+- **`/profile`** - User profile page (requires authentication)
+- **`/callback`** - OAuth callback handler
 - **`/api/data`** - JSON API endpoint
 - **Custom 404** - Error handling for non-existent pages
 
@@ -161,9 +182,20 @@ def new_page():
 - **🔄 Development**: Volume mounts for live static file updates
 - **📊 Monitoring**: Built-in health checks and restart policies
 
+## Google OAuth Setup
+
+1. **Go to Google Cloud Console**: https://console.cloud.google.com/
+2. **Create a new project** or select an existing one
+3. **Enable Google+ API** or Google Identity Services API
+4. **Create OAuth 2.0 credentials**:
+   - Application type: Web application
+   - Authorized redirect URIs: `http://localhost:5001/callback`
+5. **Copy your Client ID and Client Secret** to the `.env` file
+
 ## Technologies Used
 
-- **Backend**: Flask 2.3.3
+- **Backend**: Flask 2.3.3, Flask-Login 0.6.3
+- **Authentication**: Google OAuth 2.0, google-auth-oauthlib
 - **Frontend**: Bootstrap 5, Custom CSS/JS
 - **Template Engine**: Jinja2
 - **Development**: Python 3.x, Virtual Environment

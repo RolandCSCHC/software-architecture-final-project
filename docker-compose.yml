@@ -5,9 +5,13 @@ services:
     build: .
     ports:
       - "5001:5001"
+    env_file:
+      - .env
     environment:
       - FLASK_ENV=production
       - FLASK_APP=app.py
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
     volumes:
       # Mount static files for development (optional)
       - ./static:/app/static
