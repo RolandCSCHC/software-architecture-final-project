@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="jumbotron bg-light p-5 rounded">
+            <h1 class="display-4">Welcome to Flask App!</h1>
+            <p class="lead">This is a simple Flask application with a complete structure including routes, templates, and static files.</p>
+            <hr class="my-4">
+            <p>Get started by exploring the different pages or check out the API endpoint.</p>
+            <a class="btn btn-primary btn-lg" href="{{ url_for('about') }}" role="button">Learn More</a>
+            <button class="btn btn-secondary btn-lg" onclick="loadApiData()">Load API Data</button>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Routes</h5>
+                <p class="card-text">Multiple routes are set up including home, about, contact, and API endpoints.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Templates</h5>
+                <p class="card-text">Jinja2 templates with inheritance for consistent layout across pages.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Static Files</h5>
+                <p class="card-text">CSS and JavaScript files for styling and interactivity.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div id="api-data" class="alert alert-info" style="display: none;">
+            <h5>API Data:</h5>
+            <pre id="api-content"></pre>
+        </div>
+    </div>
+</div>
+{% endblock %}
