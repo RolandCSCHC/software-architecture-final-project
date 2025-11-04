@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   web:
     build: .
@@ -12,6 +10,9 @@ services:
       - FLASK_APP=app.py
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - FINTOC_API_KEY=${FINTOC_API_KEY}
+      - FINTOC_PUBLIC_KEY=${FINTOC_PUBLIC_KEY}
+      - FINTOC_BASE_URL=${FINTOC_BASE_URL:-https://api.fintoc.com}
     volumes:
       # Mount static files for development (optional)
       - ./static:/app/static

@@ -1,0 +1,377 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('fintoc_dashboard') }}">Financial Dashboard</a></li>
+                    <li class="breadcrumb-item active">Account Details</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h2">Account Details</h1>
+                <div class="btn-group">
+                    <button class="btn btn-outline-primary" onclick="refreshAccountData()">
+                        <i class="fas fa-sync-alt"></i> Refresh Data
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="exportTransactions()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Summary Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div id="account-summary">
+                        <div class="text-center py-3">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading account details...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Filters -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form id="filter-form" class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">From Date</label>
+                            <input type="date" class="form-control" id="since-date" name="since">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">To Date</label>
+                            <input type="date" class="form-control" id="until-date" name="until">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Limit</label>
+                            <select class="form-select" id="limit" name="limit">
+                                <option value="20">20</option>
+                                <option value="50" selected>50</option>
+                                <option value="100">100</option>
+                                <option value="200">200</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Type</label>
+                            <select class="form-select" id="type-filter">
+                                <option value="">All Types</option>
+                                <option value="transfer">Transfer</option>
+                                <option value="payment">Payment</option>
+                                <option value="withdrawal">Withdrawal</option>
+                                <option value="deposit">Deposit</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <div>
+                                <button type="button" class="btn btn-primary" onclick="applyFilters()">
+                                    Apply Filters
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transactions Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Transaction History</h5>
+                    <span id="transaction-count" class="badge bg-secondary">0 transactions</span>
+                </div>
+                <div class="card-body">
+                    <div id="transactions-container">
+                        {% if movements %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Description</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Reference</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for movement in movements %}
+                                    <tr data-type="{{ movement.type }}" data-amount="{{ movement.amount }}">
+                                        <td>
+                                            <div>{{ movement.post_date[:10] }}</div>
+                                            <small class="text-muted">{{ movement.transaction_date[:10] if movement.transaction_date else '' }}</small>
+                                        </td>
+                                        <td>
+                                            <div>{{ movement.description }}</div>
+                                            {% if movement.comment %}
+                                            <small class="text-muted">{{ movement.comment }}</small>
+                                            {% endif %}
+                                            {% if movement.sender_account %}
+                                            <small class="text-info d-block">From: {{ movement.sender_account.holder_name }}</small>
+                                            {% endif %}
+                                            {% if movement.recipient_account %}
+                                            <small class="text-info d-block">To: {{ movement.recipient_account.holder_name }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ movement.type }}</span>
+                                        </td>
+                                        <td>
+                                            <strong class="{% if movement.amount >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                                {% if movement.currency == 'CLP' %}
+                                                    ${{ "{:,.0f}".format(movement.amount) }} CLP
+                                                {% elif movement.currency == 'USD' %}
+                                                    ${{ "{:,.2f}".format(movement.amount / 100) }} USD
+                                                {% else %}
+                                                    {{ "{:,.2f}".format(movement.amount / 100) }} {{ movement.currency }}
+                                                {% endif %}
+                                            </strong>
+                                        </td>
+                                        <td>
+                                            {% if movement.pending %}
+                                                <span class="badge bg-warning">Pending</span>
+                                            {% else %}
+                                                <span class="badge bg-success">Completed</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">{{ movement.reference_id or 'N/A' }}</small>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
+                            <h4>No Transactions Found</h4>
+                            <p class="text-muted">No transactions found for this account in the selected period.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const accountId = '{{ account_id }}';
+
+// Load account summary on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadAccountSummary();
+    updateTransactionCount();
+    
+    // Set default date range (last 30 days)
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+    
+    document.getElementById('since-date').value = thirtyDaysAgo.toISOString().split('T')[0];
+    document.getElementById('until-date').value = today.toISOString().split('T')[0];
+});
+
+// Load account summary information
+function loadAccountSummary() {
+    // This would typically come from an API call to get account details
+    // For now, we'll create a placeholder
+    const summaryHtml = `
+        <div class="row">
+            <div class="col-md-8">
+                <h4>Account Information</h4>
+                <p class="text-muted mb-1">Account ID: ${accountId}</p>
+                <p class="text-muted">Loading account details...</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <h3 class="text-primary">Balance Loading...</h3>
+                <p class="text-muted">Current Balance</p>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('account-summary').innerHTML = summaryHtml;
+}
+
+// Apply transaction filters
+function applyFilters() {
+    const since = document.getElementById('since-date').value;
+    const until = document.getElementById('until-date').value;
+    const limit = document.getElementById('limit').value;
+    const typeFilter = document.getElementById('type-filter').value;
+    
+    // Build query parameters
+    const params = new URLSearchParams();
+    if (since) params.append('since', since);
+    if (until) params.append('until', until);
+    params.append('limit', limit);
+    
+    // Show loading state
+    const container = document.getElementById('transactions-container');
+    container.innerHTML = `
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading transactions...</span>
+            </div>
+            <p class="mt-3 mb-0">Loading filtered transactions...</p>
+        </div>
+    `;
+    
+    // Fetch filtered transactions
+    fetch(`/api/fintoc/movements/${accountId}?${params.toString()}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                displayFilteredTransactions(data.movements, typeFilter);
+                updateTransactionCount(data.movements.length);
+            } else {
+                container.innerHTML = '<div class="alert alert-danger">Error loading transactions</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            container.innerHTML = '<div class="alert alert-danger">Error loading transactions</div>';
+        });
+}
+
+// Display filtered transactions
+function displayFilteredTransactions(movements, typeFilter) {
+    const container = document.getElementById('transactions-container');
+    
+    // Apply type filter if specified
+    let filteredMovements = movements;
+    if (typeFilter) {
+        filteredMovements = movements.filter(m => m.type === typeFilter);
+    }
+    
+    if (filteredMovements.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-5">
+                <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
+                <h4>No Transactions Found</h4>
+                <p class="text-muted">No transactions match the selected filters.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '<div class="table-responsive"><table class="table table-hover">';
+    html += '<thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Amount</th><th>Status</th><th>Reference</th></tr></thead><tbody>';
+    
+    filteredMovements.forEach(movement => {
+        const postDate = new Date(movement.post_date).toLocaleDateString();
+        const transDate = movement.transaction_date ? new Date(movement.transaction_date).toLocaleDateString() : '';
+        const amount = formatCurrency(movement.amount, movement.currency);
+        const amountClass = movement.amount >= 0 ? 'text-success' : 'text-danger';
+        const statusBadge = movement.pending ? 
+            '<span class="badge bg-warning">Pending</span>' : 
+            '<span class="badge bg-success">Completed</span>';
+        
+        html += `
+            <tr>
+                <td>
+                    <div>${postDate}</div>
+                    ${transDate ? '<small class="text-muted">' + transDate + '</small>' : ''}
+                </td>
+                <td>
+                    <div>${movement.description}</div>
+                    ${movement.comment ? '<small class="text-muted">' + movement.comment + '</small>' : ''}
+                    ${movement.sender_account ? '<small class="text-info d-block">From: ' + movement.sender_account.holder_name + '</small>' : ''}
+                    ${movement.recipient_account ? '<small class="text-info d-block">To: ' + movement.recipient_account.holder_name + '</small>' : ''}
+                </td>
+                <td><span class="badge bg-secondary">${movement.type}</span></td>
+                <td class="${amountClass}"><strong>${amount}</strong></td>
+                <td>${statusBadge}</td>
+                <td><small class="text-muted">${movement.reference_id || 'N/A'}</small></td>
+            </tr>
+        `;
+    });
+    
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+    
+    updateTransactionCount(filteredMovements.length);
+}
+
+// Update transaction count badge
+function updateTransactionCount(count) {
+    if (count === undefined) {
+        // Count existing rows in the table
+        const rows = document.querySelectorAll('#transactions-container tbody tr');
+        count = rows.length;
+    }
+    
+    const badge = document.getElementById('transaction-count');
+    badge.textContent = `${count} transaction${count !== 1 ? 's' : ''}`;
+}
+
+// Format currency amounts
+function formatCurrency(amount, currency) {
+    if (currency === 'CLP') {
+        return `$${amount.toLocaleString()} CLP`;
+    } else if (currency === 'USD') {
+        return `$${(amount / 100).toFixed(2)} USD`;
+    } else {
+        return `${(amount / 100).toFixed(2)} ${currency}`;
+    }
+}
+
+// Refresh account data
+function refreshAccountData() {
+    fetch(`/api/fintoc/refresh/${accountId}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Show success message
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-success alert-dismissible fade show';
+                alert.innerHTML = `
+                    ${data.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('.container-fluid').prepend(alert);
+                
+                // Reload transactions after refresh
+                setTimeout(() => {
+                    applyFilters();
+                    alert.remove();
+                }, 2000);
+            } else {
+                alert('Error refreshing account data');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error refreshing account data');
+        });
+}
+
+// Export transactions (placeholder function)
+function exportTransactions() {
+    // This would generate a CSV or Excel export
+    alert('Export functionality will be implemented soon!');
+}
+</script>
+{% endblock %}

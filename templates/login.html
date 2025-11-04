@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="fas fa-university fa-3x text-primary mb-3"></i>
+                    <h2 class="card-title">Bienvenido</h2>
+                    <p class="text-muted">Sistema de Gestión Financiera Personal</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h5>🏦 Conecta tus cuentas bancarias</h5>
+                    <p class="small text-muted">Accede a tus datos financieros de forma segura usando integración bancaria con Fintoc.</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h5>📊 Visualiza tus finanzas</h5>
+                    <p class="small text-muted">Analiza tus gastos, ingresos y movimientos bancarios en tiempo real.</p>
+                </div>
+                
+                <div class="mb-4">
+                    <h5>🔒 Seguridad garantizada</h5>
+                    <p class="small text-muted">Protección de nivel bancario con autenticación OAuth de Google.</p>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('google_login') }}" class="btn btn-primary btn-lg">
+                        <i class="fab fa-google me-2"></i>
+                        Iniciar Sesión con Google
+                    </a>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <small class="text-muted">
+                        Al continuar, aceptas conectarte usando tu cuenta de Google
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card border-0 bg-light">
+            <div class="card-body">
+                <h5 class="text-center mb-4">🇨🇱 Bancos Soportados en Chile</h5>
+                <div class="row text-center">
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="p-2">
+                            <strong>Banco de Chile</strong>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="p-2">
+                            <strong>Banco Estado</strong>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="p-2">
+                            <strong>Santander</strong>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="p-2">
+                            <strong>BCI</strong>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-center text-muted small mb-0">
+                    Y muchos más bancos chilenos disponibles
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

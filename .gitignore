@@ -165,3 +165,7 @@ logs/
 # Dockerfile
 # docker-compose.yml
 # .dockerignore
+
+# Project specific
+README.md.backup
+*.backup
