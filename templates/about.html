@@ -1,52 +1,188 @@
 {% extends "base.html" %} {% block content %}
 <div class="row">
-  <div class="col-lg-8 mx-auto">
-    <h1>About This Flask App</h1>
+  <div class="col-lg-10 mx-auto">
+    <h1>🏦 Personal Finance Management System</h1>
     <p class="lead">
-      This is a demonstration Flask application showcasing a complete project
-      structure.
+      A comprehensive Flask-based personal finance management system with Google
+      OAuth authentication and Fintoc API integration for real-time banking
+      data, featuring secure user authentication, financial dashboard, and
+      comprehensive transaction management.
     </p>
 
-    <h3>Features</h3>
-    <ul class="list-group list-group-flush">
-      <li class="list-group-item">
-        ✅ Multiple routes with different HTTP methods
-      </li>
-      <li class="list-group-item">✅ Template inheritance with Jinja2</li>
-      <li class="list-group-item">✅ Static file serving (CSS, JS)</li>
-      <li class="list-group-item">✅ Form handling</li>
-      <li class="list-group-item">✅ JSON API endpoints</li>
-      <li class="list-group-item">✅ Error handling (404 pages)</li>
-      <li class="list-group-item">✅ Bootstrap integration</li>
-      <li class="list-group-item">✅ Responsive design</li>
-    </ul>
+    <h3>✨ Key Features</h3>
+    <div class="row">
+      <div class="col-md-6">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">
+            🔐 <strong>Google OAuth Authentication</strong> - Secure login with
+            Google accounts
+          </li>
+          <li class="list-group-item">
+            🏦 <strong>Fintoc API Integration</strong> - Connect to Chilean,
+            Colombian, and Mexican banks
+          </li>
+          <li class="list-group-item">
+            💰 <strong>Real-time Banking Data</strong> - Access account balances
+            and transaction history
+          </li>
+          <li class="list-group-item">
+            📊 <strong>Financial Dashboard</strong> - Visualize your financial
+            data with interactive charts
+          </li>
+          <li class="list-group-item">
+            🔄 <strong>Data Synchronization</strong> - Refresh bank data
+            on-demand
+          </li>
+          <li class="list-group-item">
+            👤 <strong>User Profile Management</strong> - View and manage user
+            profile information
+          </li>
+        </ul>
+      </div>
+      <div class="col-md-6">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">
+            🎨 <strong>Modern UI</strong> - Bootstrap 5 integration with Font
+            Awesome icons
+          </li>
+          <li class="list-group-item">
+            📱 <strong>Responsive Design</strong> - Mobile-friendly interface
+          </li>
+          <li class="list-group-item">
+            🔌 <strong>RESTful API</strong> - JSON API endpoints for financial
+            data
+          </li>
+          <li class="list-group-item">
+            ❌ <strong>Error Handling</strong> - Custom 404 error pages and
+            comprehensive error handling
+          </li>
+          <li class="list-group-item">
+            🔒 <strong>Session Management</strong> - Secure user session
+            handling with Flask-Login
+          </li>
+          <li class="list-group-item">
+            🐳 <strong>Docker Support</strong> - Fully containerized application
+          </li>
+        </ul>
+      </div>
+    </div>
 
-    <h3 class="mt-4">Project Structure</h3>
+    <h3 class="mt-4">🏗️ Project Structure</h3>
     <pre class="bg-light p-3 rounded">
-flask-app/
-├── app.py              # Main Flask application
-├── requirements.txt    # Python dependencies
-├── Dockerfile          # Docker container configuration
-├── docker-compose.yml  # Docker Compose orchestration
-├── .dockerignore       # Docker build exclusions
-├── .gitignore          # Git exclusions
-├── templates/          # Jinja2 templates
-│   ├── base.html      # Base template
-│   ├── index.html     # Home page
-│   ├── about.html     # About page
-│   └── 404.html       # Error page
-└── static/            # Static files
+personal-finance-system/
+├── app.py                    # Main Flask application with OAuth and Fintoc
+├── fintoc_service.py         # Fintoc API integration service
+├── requirements.txt          # Python dependencies (includes Fintoc SDK)
+├── Dockerfile               # Docker container configuration
+├── docker-compose.yml       # Docker Compose with environment variables
+├── .env.example            # Environment variables template
+├── .dockerignore          # Docker build exclusions
+├── .gitignore             # Git exclusions
+├── templates/             # Jinja2 templates
+│   ├── base.html         # Base template with auth navigation
+│   ├── index.html        # Home page with financial features
+│   ├── about.html        # About page
+│   ├── profile.html      # User profile page
+│   ├── login.html        # Google OAuth login page
+│   ├── 404.html          # Error page
+│   └── fintoc/           # Fintoc-specific templates
+│       ├── dashboard.html    # Financial dashboard
+│       ├── connect.html      # Bank connection page
+│       └── account_detail.html # Account transaction details
+└── static/               # Static files
     ├── css/
-    │   └── style.css  # Custom styles
+    │   └── style.css     # Custom styles
     └── js/
-        └── main.js    # JavaScript functions
+        └── main.js       # JavaScript functions
         </pre
     >
 
+    <h3 class="mt-4">🌍 Supported Countries & Banks</h3>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card mb-3">
+          <div class="card-header">🇨🇱 <strong>Chile</strong></div>
+          <div class="card-body">
+            <ul class="list-unstyled mb-0">
+              <li>• Banco de Chile</li>
+              <li>• BancoEstado</li>
+              <li>• Santander</li>
+              <li>• BCI</li>
+              <li>• And more...</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card mb-3">
+          <div class="card-header">🇨🇴 <strong>Colombia</strong></div>
+          <div class="card-body">
+            <ul class="list-unstyled mb-0">
+              <li>• Bancolombia</li>
+              <li>• Banco de Bogotá</li>
+              <li>• Davivienda</li>
+              <li>• BBVA Colombia</li>
+              <li>• And more...</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card mb-3">
+          <div class="card-header">🇲🇽 <strong>Mexico</strong></div>
+          <div class="card-body">
+            <ul class="list-unstyled mb-0">
+              <li>• BBVA México</li>
+              <li>• Santander México</li>
+              <li>• Banorte</li>
+              <li>• Citibanamex</li>
+              <li>• And more...</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="mt-4">🛠️ Technology Stack</h3>
+    <div class="row">
+      <div class="col-md-6">
+        <h5>Backend</h5>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">Flask 2.3.3 - Web framework</li>
+          <li class="list-group-item">
+            Flask-Login 0.6.3 - User session management
+          </li>
+          <li class="list-group-item">Google OAuth 2.0 - Authentication</li>
+          <li class="list-group-item">
+            Fintoc Python SDK 2.13.0 - Financial API
+          </li>
+          <li class="list-group-item">Jinja2 - Template engine</li>
+        </ul>
+      </div>
+      <div class="col-md-6">
+        <h5>Frontend & Deployment</h5>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">Bootstrap 5 - UI framework</li>
+          <li class="list-group-item">Font Awesome 6 - Icons</li>
+          <li class="list-group-item">Custom CSS/JS - Enhanced styling</li>
+          <li class="list-group-item">
+            Docker & Docker Compose - Containerization
+          </li>
+          <li class="list-group-item">Python 3.x - Runtime environment</li>
+        </ul>
+      </div>
+    </div>
+
     <div class="mt-4">
-      <a href="{{ url_for('index') }}" class="btn btn-outline-secondary"
-        >Back to Home</a
+      <a href="{{ url_for('index') }}" class="btn btn-outline-primary me-2">
+        <i class="fas fa-home"></i> Back to Home
+      </a>
+      <a
+        href="{{ url_for('fintoc_dashboard') }}"
+        class="btn btn-outline-success"
       >
+        <i class="fas fa-chart-line"></i> Financial Dashboard
+      </a>
     </div>
   </div>
 </div>

@@ -1,186 +1,217 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h2">🇨🇱 Dashboard Financiero Chile</h1>
-                {% if configured %}
-                <div>
-                    <a href="{{ url_for('fintoc_connect') }}" class="btn btn-primary">
-                        <i class="fas fa-plus me-2"></i>Conectar Banco Chileno
-                    </a>
-                </div>
-                {% endif %}
-            </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2">🇨🇱 Dashboard Financiero Chile</h1>
+        {% if configured %}
+        <div>
+          <a href="{{ url_for('fintoc_connect') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Conectar Banco Chileno
+          </a>
         </div>
+        {% endif %}
+      </div>
     </div>
+  </div>
 
-    {% if not configured %}
-    <div class="row">
-        <div class="col-12">
-            <div class="alert alert-warning" role="alert">
-                <h4 class="alert-heading">Fintoc Not Configured</h4>
-                <p>To use the financial dashboard, you need to configure your Fintoc API credentials.</p>
-                <p class="mb-0">Please set the <code>FINTOC_API_KEY</code> environment variable with your Fintoc API key.</p>
-            </div>
+  {% if not configured %}
+  <div class="row">
+    <div class="col-12">
+      <div class="alert alert-warning" role="alert">
+        <h4 class="alert-heading">Fintoc Not Configured</h4>
+        <p>
+          To use the financial dashboard, you need to configure your Fintoc API
+          credentials.
+        </p>
+        <p class="mb-0">
+          Please set the <code>FINTOC_API_KEY</code> environment variable with
+          your Fintoc API key.
+        </p>
+      </div>
+    </div>
+  </div>
+  {% else %}
+
+  <!-- Financial Summary Cards -->
+  {% if financial_data %}
+  <div class="row mb-4">
+    {% for data in financial_data %}
+    <div class="col-md-6 col-lg-4 mb-3">
+      <div class="card h-100">
+        <div
+          class="card-header d-flex justify-content-between align-items-center"
+        >
+          <h5 class="card-title mb-0">
+            {{ data.link.institution.name if data.link.institution else 'Bank
+            Account' }}
+          </h5>
+          <span class="badge bg-success">Connected</span>
         </div>
-    </div>
-    {% else %}
-
-    <!-- Financial Summary Cards -->
-    {% if financial_data %}
-    <div class="row mb-4">
-        {% for data in financial_data %}
-        <div class="col-md-6 col-lg-4 mb-3">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">
-                        {{ data.link.institution.name if data.link.institution else 'Bank Account' }}
-                    </h5>
-                    <span class="badge bg-success">Connected</span>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-12 mb-3">
-                            <h3 class="text-primary">
-                                {% if data.summary.currency == 'CLP' %}
-                                    ${{ "{:,.0f}".format(data.summary.total_balance) }} CLP
-                                {% elif data.summary.currency == 'USD' %}
-                                    ${{ "{:,.2f}".format(data.summary.total_balance / 100) }} USD
-                                {% else %}
-                                    {{ "{:,.2f}".format(data.summary.total_balance / 100) }} {{ data.summary.currency }}
-                                {% endif %}
-                            </h3>
-                            <p class="text-muted mb-0">Total Balance</p>
-                        </div>
-                        <div class="col-6">
-                            <p class="mb-1"><strong>{{ data.summary.accounts_count }}</strong></p>
-                            <p class="text-muted small mb-0">Accounts</p>
-                        </div>
-                        <div class="col-6">
-                            <p class="mb-1"><strong>{{ data.link.institution.country|upper if data.link.institution else 'N/A' }}</strong></p>
-                            <p class="text-muted small mb-0">Country</p>
-                        </div>
-                    </div>
-                    <div class="mt-3">
-                        <button class="btn btn-outline-primary btn-sm" onclick="loadAccountDetails('{{ data.link.id }}')">
-                            View Accounts
-                        </button>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="refreshBankData('{{ data.link.id }}')">
-                            Refresh Data
-                        </button>
-                    </div>
-                </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12 mb-3">
+              <h3 class="text-primary">
+                {% if data.summary.currency == 'CLP' %} ${{
+                "{:,.0f}".format(data.summary.total_balance) }} CLP {% elif
+                data.summary.currency == 'USD' %} ${{
+                "{:,.2f}".format(data.summary.total_balance / 100) }} USD {%
+                else %} {{ "{:,.2f}".format(data.summary.total_balance / 100) }}
+                {{ data.summary.currency }} {% endif %}
+              </h3>
+              <p class="text-muted mb-0">Total Balance</p>
             </div>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <!-- Accounts Detail Section -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Bank Accounts</h5>
-                </div>
-                <div class="card-body">
-                    <div id="accounts-container">
-                        {% if not financial_data %}
-                        <div class="text-center py-5">
-                            <i class="fas fa-university fa-3x text-muted mb-3"></i>
-                            <h4>No tienes cuentas bancarias conectadas</h4>
-                            <p class="text-muted">Conecta tu cuenta bancaria chilena para comenzar a gestionar tus finanzas.</p>
-                            <a href="{{ url_for('fintoc_connect') }}" class="btn btn-primary btn-lg">
-                                <i class="fas fa-plus me-2"></i>�� Conectar Banco Chileno
-                            </a>
-                        </div>
-                        {% else %}
-                        <p class="text-muted">Select a bank connection above to view account details.</p>
-                        {% endif %}
-                    </div>
-                </div>
+            <div class="col-6">
+              <p class="mb-1">
+                <strong>{{ data.summary.accounts_count }}</strong>
+              </p>
+              <p class="text-muted small mb-0">Accounts</p>
             </div>
-        </div>
-    </div>
-
-    <!-- Recent Transactions -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Recent Transactions</h5>
-                </div>
-                <div class="card-body">
-                    <div id="transactions-container">
-                        <p class="text-muted">Select an account to view recent transactions.</p>
-                    </div>
-                </div>
+            <div class="col-6">
+              <p class="mb-1">
+                <strong
+                  >{{ data.link.institution.country|upper if
+                  data.link.institution else 'N/A' }}</strong
+                >
+              </p>
+              <p class="text-muted small mb-0">Country</p>
             </div>
+          </div>
+          <div class="mt-3">
+            <button
+              class="btn btn-outline-primary btn-sm"
+              onclick="loadAccountDetails('{{ data.link.id }}')"
+            >
+              View Accounts
+            </button>
+            <button
+              class="btn btn-outline-secondary btn-sm"
+              onclick="refreshBankData('{{ data.link.id }}')"
+            >
+              Refresh Data
+            </button>
+          </div>
         </div>
+      </div>
     </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 
-    {% endif %}
+  <!-- Accounts Detail Section -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Bank Accounts</h5>
+        </div>
+        <div class="card-body">
+          <div id="accounts-container">
+            {% if not financial_data %}
+            <div class="text-center py-5">
+              <i class="fas fa-university fa-3x text-muted mb-3"></i>
+              <h4>No tienes cuentas bancarias conectadas</h4>
+              <p class="text-muted">
+                Conecta tu cuenta bancaria chilena para comenzar a gestionar tus
+                finanzas.
+              </p>
+              <a
+                href="{{ url_for('fintoc_connect') }}"
+                class="btn btn-primary btn-lg"
+              >
+                <i class="fas fa-plus me-2"></i>Conectar Banco Chileno
+              </a>
+            </div>
+            {% else %}
+            <p class="text-muted">
+              Select a bank connection above to view account details.
+            </p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Transactions -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Recent Transactions</h5>
+        </div>
+        <div class="card-body">
+          <div id="transactions-container">
+            <p class="text-muted">
+              Select an account to view recent transactions.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% endif %}
 </div>
 
 <!-- Loading Modal -->
 <div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-body text-center py-4">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <p class="mt-3 mb-0">Loading financial data...</p>
-            </div>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body text-center py-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
         </div>
+        <p class="mt-3 mb-0">Loading financial data...</p>
+      </div>
     </div>
+  </div>
 </div>
 
 <script>
-// Load account details for a specific link
-function loadAccountDetails(linkId) {
-    const container = document.getElementById('accounts-container');
-    const modal = new bootstrap.Modal(document.getElementById('loadingModal'));
-    
-    modal.show();
-    
-    fetch(`/api/fintoc/accounts/${linkId}`)
-        .then(response => response.json())
-        .then(data => {
-            modal.hide();
-            if (data.status === 'success') {
-                displayAccounts(data.accounts);
-            } else {
-                container.innerHTML = '<div class="alert alert-danger">Error loading accounts</div>';
-            }
-        })
-        .catch(error => {
-            modal.hide();
-            console.error('Error:', error);
-            container.innerHTML = '<div class="alert alert-danger">Error loading accounts</div>';
-        });
-}
+  // Load account details for a specific link
+  function loadAccountDetails(linkId) {
+    const container = document.getElementById("accounts-container");
+    const modal = new bootstrap.Modal(document.getElementById("loadingModal"));
 
-// Display accounts in the UI
-function displayAccounts(accounts) {
-    const container = document.getElementById('accounts-container');
-    
+    modal.show();
+
+    fetch(`/api/fintoc/accounts/${linkId}`)
+      .then((response) => response.json())
+      .then((data) => {
+        modal.hide();
+        if (data.status === "success") {
+          displayAccounts(data.accounts);
+        } else {
+          container.innerHTML =
+            '<div class="alert alert-danger">Error loading accounts</div>';
+        }
+      })
+      .catch((error) => {
+        modal.hide();
+        console.error("Error:", error);
+        container.innerHTML =
+          '<div class="alert alert-danger">Error loading accounts</div>';
+      });
+  }
+
+  // Display accounts in the UI
+  function displayAccounts(accounts) {
+    const container = document.getElementById("accounts-container");
+
     if (accounts.length === 0) {
-        container.innerHTML = '<p class="text-muted">No accounts found.</p>';
-        return;
+      container.innerHTML = '<p class="text-muted">No accounts found.</p>';
+      return;
     }
-    
+
     let html = '<div class="row">';
-    
-    accounts.forEach(account => {
-        const balance = account.balance ? account.balance.current : 0;
-        const currency = account.balance ? account.balance.currency : 'N/A';
-        const formattedBalance = formatCurrency(balance, currency);
-        
-        html += `
+
+    accounts.forEach((account) => {
+      const balance = account.balance ? account.balance.current : 0;
+      const currency = account.balance ? account.balance.currency : "N/A";
+      const formattedBalance = formatCurrency(balance, currency);
+
+      html += `
             <div class="col-md-6 col-lg-4 mb-3">
                 <div class="card">
                     <div class="card-body">
@@ -202,124 +233,137 @@ function displayAccounts(accounts) {
             </div>
         `;
     });
-    
-    html += '</div>';
+
+    html += "</div>";
     container.innerHTML = html;
-}
+  }
 
-// Load transactions for a specific account
-function loadTransactions(accountId) {
-    const container = document.getElementById('transactions-container');
-    const modal = new bootstrap.Modal(document.getElementById('loadingModal'));
-    
+  // Load transactions for a specific account
+  function loadTransactions(accountId) {
+    const container = document.getElementById("transactions-container");
+    const modal = new bootstrap.Modal(document.getElementById("loadingModal"));
+
     modal.show();
-    
-    fetch(`/api/fintoc/movements/${accountId}?limit=20`)
-        .then(response => response.json())
-        .then(data => {
-            modal.hide();
-            if (data.status === 'success') {
-                displayTransactions(data.movements);
-            } else {
-                container.innerHTML = '<div class="alert alert-danger">Error loading transactions</div>';
-            }
-        })
-        .catch(error => {
-            modal.hide();
-            console.error('Error:', error);
-            container.innerHTML = '<div class="alert alert-danger">Error loading transactions</div>';
-        });
-}
 
-// Display transactions in the UI
-function displayTransactions(movements) {
-    const container = document.getElementById('transactions-container');
-    
+    fetch(`/api/fintoc/movements/${accountId}?limit=20`)
+      .then((response) => response.json())
+      .then((data) => {
+        modal.hide();
+        if (data.status === "success") {
+          displayTransactions(data.movements);
+        } else {
+          container.innerHTML =
+            '<div class="alert alert-danger">Error loading transactions</div>';
+        }
+      })
+      .catch((error) => {
+        modal.hide();
+        console.error("Error:", error);
+        container.innerHTML =
+          '<div class="alert alert-danger">Error loading transactions</div>';
+      });
+  }
+
+  // Display transactions in the UI
+  function displayTransactions(movements) {
+    const container = document.getElementById("transactions-container");
+
     if (movements.length === 0) {
-        container.innerHTML = '<p class="text-muted">No recent transactions found.</p>';
-        return;
+      container.innerHTML =
+        '<p class="text-muted">No recent transactions found.</p>';
+      return;
     }
-    
-    let html = '<div class="table-responsive"><table class="table table-hover">';
-    html += '<thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead><tbody>';
-    
-    movements.forEach(movement => {
-        const date = new Date(movement.post_date).toLocaleDateString();
-        const amount = formatCurrency(movement.amount, movement.currency);
-        const amountClass = movement.amount >= 0 ? 'text-success' : 'text-danger';
-        const statusBadge = movement.pending ? 
-            '<span class="badge bg-warning">Pending</span>' : 
-            '<span class="badge bg-success">Completed</span>';
-        
-        html += `
+
+    let html =
+      '<div class="table-responsive"><table class="table table-hover">';
+    html +=
+      "<thead><tr><th>Date</th><th>Description</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead><tbody>";
+
+    movements.forEach((movement) => {
+      const date = new Date(movement.post_date).toLocaleDateString();
+      const amount = formatCurrency(movement.amount, movement.currency);
+      const amountClass = movement.amount >= 0 ? "text-success" : "text-danger";
+      const statusBadge = movement.pending
+        ? '<span class="badge bg-warning">Pending</span>'
+        : '<span class="badge bg-success">Completed</span>';
+
+      html += `
             <tr>
                 <td>${date}</td>
                 <td>
                     <div>${movement.description}</div>
-                    ${movement.comment ? '<small class="text-muted">' + movement.comment + '</small>' : ''}
+                    ${
+                      movement.comment
+                        ? '<small class="text-muted">' +
+                          movement.comment +
+                          "</small>"
+                        : ""
+                    }
                 </td>
-                <td><span class="badge bg-secondary">${movement.type}</span></td>
+                <td><span class="badge bg-secondary">${
+                  movement.type
+                }</span></td>
                 <td class="${amountClass}"><strong>${amount}</strong></td>
                 <td>${statusBadge}</td>
             </tr>
         `;
     });
-    
-    html += '</tbody></table></div>';
+
+    html += "</tbody></table></div>";
     container.innerHTML = html;
-}
+  }
 
-// Format currency amounts
-function formatCurrency(amount, currency) {
-    if (currency === 'CLP') {
-        return `$${amount.toLocaleString()} CLP`;
-    } else if (currency === 'USD') {
-        return `$${(amount / 100).toFixed(2)} USD`;
+  // Format currency amounts
+  function formatCurrency(amount, currency) {
+    if (currency === "CLP") {
+      return `$${amount.toLocaleString()} CLP`;
+    } else if (currency === "USD") {
+      return `$${(amount / 100).toFixed(2)} USD`;
     } else {
-        return `${(amount / 100).toFixed(2)} ${currency}`;
+      return `${(amount / 100).toFixed(2)} ${currency}`;
     }
-}
+  }
 
-// Refresh account data
-function refreshAccount(accountId) {
-    fetch(`/api/fintoc/refresh/${accountId}`, { method: 'POST' })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                // Show success message
-                const alert = document.createElement('div');
-                alert.className = 'alert alert-success alert-dismissible fade show';
-                alert.innerHTML = `
+  // Refresh account data
+  function refreshAccount(accountId) {
+    fetch(`/api/fintoc/refresh/${accountId}`, { method: "POST" })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "success") {
+          // Show success message
+          const alert = document.createElement("div");
+          alert.className = "alert alert-success alert-dismissible fade show";
+          alert.innerHTML = `
                     ${data.message}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 `;
-                document.querySelector('.container-fluid').prepend(alert);
-                
-                // Auto-hide after 3 seconds
-                setTimeout(() => alert.remove(), 3000);
-            } else {
-                alert('Error refreshing account data');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error refreshing account data');
-        });
-}
+          document.querySelector(".container-fluid").prepend(alert);
 
-// Refresh bank data for a link
-function refreshBankData(linkId) {
+          // Auto-hide after 3 seconds
+          setTimeout(() => alert.remove(), 3000);
+        } else {
+          alert("Error refreshing account data");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Error refreshing account data");
+      });
+  }
+
+  // Refresh bank data for a link
+  function refreshBankData(linkId) {
     // This would trigger refresh for all accounts in the link
     // For now, we'll just show a message
-    const alert = document.createElement('div');
-    alert.className = 'alert alert-info alert-dismissible fade show';
+    const alert = document.createElement("div");
+    alert.className = "alert alert-info alert-dismissible fade show";
     alert.innerHTML = `
         Refresh initiated for all accounts. Data will be updated shortly.
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
-    document.querySelector('.container-fluid').prepend(alert);
-    
+    document.querySelector(".container-fluid").prepend(alert);
+
     setTimeout(() => alert.remove(), 3000);
-}
+  }
 </script>
 {% endblock %}

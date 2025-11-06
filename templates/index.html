@@ -1,57 +1,95 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <div class="row">
-    <div class="col-lg-8 mx-auto">
-        <div class="jumbotron bg-light p-5 rounded">
-            <h1 class="display-4">¡Bienvenido a tu Sistema Financiero Personal!</h1>
-            <p class="lead">¡Hola {{ session.user_name or 'Usuario' }}! Gestiona tus finanzas personales de forma segura con integración Fintoc.</p>
-            <hr class="my-4">
-            <p>Conecta tus cuentas bancarias y visualiza tus datos financieros en tiempo real. Seguro y potenciado por la API de Fintoc.</p>
-            <a class="btn btn-primary btn-lg" href="{{ url_for('fintoc_dashboard') }}" role="button">
-                <i class="fas fa-university"></i> 🇨🇱 Dashboard Bancario
-            </a>
-            <a class="btn btn-outline-secondary btn-lg" href="{{ url_for('about') }}" role="button">Más Información</a>
-        </div>
+  <div class="col-lg-8 mx-auto">
+    <div class="jumbotron bg-light p-5 rounded">
+      <h1 class="display-4">¡Bienvenido a tu Sistema Financiero Personal!</h1>
+      <p class="lead">
+        ¡Hola {{ session.user_name or 'Usuario' }}! Gestiona tus finanzas
+        personales de forma segura con integración Fintoc.
+      </p>
+      <hr class="my-4" />
+      <p>
+        Conecta tus cuentas bancarias y visualiza tus datos financieros en
+        tiempo real. Seguro y potenciado por la API de Fintoc.
+      </p>
+      <a
+        class="btn btn-primary btn-lg"
+        href="{{ url_for('fintoc_dashboard') }}"
+        role="button"
+      >
+        <i class="fas fa-university"></i> 🇨🇱 Dashboard Bancario
+      </a>
+      <a
+        class="btn btn-outline-light btn-lg"
+        href="{{ url_for('about') }}"
+        role="button"
+        >Más Información</a
+      >
     </div>
+  </div>
 </div>
 
 <div class="row mt-4">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title"><i class="fas fa-link text-primary"></i> Integración Bancaria</h5>
-                <p class="card-text">Conecta tus cuentas bancarias de forma segura usando la API de Fintoc para acceder a datos financieros en tiempo real.</p>
-                <a href="{{ url_for('fintoc_dashboard') }}" class="btn btn-outline-primary btn-sm">Conectar Banco</a>
-            </div>
-        </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">
+          <i class="fas fa-link text-primary"></i> Integración Bancaria
+        </h5>
+        <p class="card-text">
+          Conecta tus cuentas bancarias de forma segura usando la API de Fintoc
+          para acceder a datos financieros en tiempo real.
+        </p>
+        <a
+          href="{{ url_for('fintoc_dashboard') }}"
+          class="btn btn-outline-primary btn-sm"
+          >Conectar Banco</a
+        >
+      </div>
     </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title"><i class="fas fa-chart-line text-success"></i> Análisis Financiero</h5>
-                <p class="card-text">Visualiza tus patrones de gastos, saldos de cuentas e historial de transacciones.</p>
-                <a href="{{ url_for('fintoc_dashboard') }}" class="btn btn-outline-success btn-sm">Ver Análisis</a>
-            </div>
-        </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">
+          <i class="fas fa-chart-line text-success"></i> Análisis Financiero
+        </h5>
+        <p class="card-text">
+          Visualiza tus patrones de gastos, saldos de cuentas e historial de
+          transacciones.
+        </p>
+        <a
+          href="{{ url_for('fintoc_dashboard') }}"
+          class="btn btn-outline-success btn-sm"
+          >Ver Análisis</a
+        >
+      </div>
     </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title"><i class="fas fa-shield-alt text-info"></i> Seguro y Privado</h5>
-                <p class="card-text">Tus datos financieros están protegidos con seguridad de nivel bancario y autenticación OAuth.</p>
-                <a href="{{ url_for('about') }}" class="btn btn-outline-info btn-sm">Más Información</a>
-            </div>
-        </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">
+          <i class="fas fa-shield-alt text-info"></i> Seguro y Privado
+        </h5>
+        <p class="card-text">
+          Tus datos financieros están protegidos con seguridad de nivel bancario
+          y autenticación OAuth.
+        </p>
+        <a href="{{ url_for('about') }}" class="btn btn-outline-info btn-sm"
+          >Más Información</a
+        >
+      </div>
     </div>
+  </div>
 </div>
 
 <div class="row mt-4">
-    <div class="col-12">
-        <div id="api-data" class="alert alert-info" style="display: none;">
-            <h5>API Data:</h5>
-            <pre id="api-content"></pre>
-        </div>
+  <div class="col-12">
+    <div id="api-data" class="alert alert-info" style="display: none">
+      <h5>API Data:</h5>
+      <pre id="api-content"></pre>
     </div>
+  </div>
 </div>
 {% endblock %}

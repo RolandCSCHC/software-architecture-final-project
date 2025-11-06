@@ -1,465 +1,537 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">
-                        <i class="fas fa-university me-2"></i>
-                        🇨🇱 Conectar Banco Chileno
-                    </h4>
-                </div>
-                <div class="card-body">
-                    <!-- Loading Container -->
-                    <div id="loading-container" class="text-center mb-4">
-                        <div class="spinner-border text-primary mb-3" role="status">
-                            <span class="visually-hidden">Cargando widget...</span>
-                        </div>
-                        <p class="text-muted">Iniciando conexión segura con tu banco chileno...</p>
-                        
-                        {% if debug_info %}
-                        <div class="mt-3 p-3" style="background-color: #f8f9fa; border-radius: 5px; font-family: monospace; font-size: 12px;">
-                            <strong>Debug Info:</strong><br>
-                            Widget Token: {{ widget_token[:20] if widget_token else 'NULL' }}...<br>
-                            Public Key: {{ public_key[:20] if public_key else 'NOT_SET' }}...<br>
-                            Link Intent ID: {{ link_intent.id if link_intent else 'N/A' }}
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <!-- Error Container -->
-                    <div id="error-container" class="alert alert-danger d-none" role="alert">
-                        <h6><i class="fas fa-exclamation-triangle me-2"></i>Error de Conexión</h6>
-                        <p id="error-message" class="mb-2"></p>
-                        <button class="btn btn-outline-danger btn-sm" onclick="retryConnection()">
-                            <i class="fas fa-redo me-1"></i>Intentar Nuevamente
-                        </button>
-                    </div>
-
-                    <!-- Success Container -->
-                    <div id="success-container" class="alert alert-success d-none" role="alert">
-                        <h6><i class="fas fa-check-circle me-2"></i>¡Conexión Exitosa!</h6>
-                        <p class="mb-2">Tu cuenta bancaria ha sido conectada exitosamente.</p>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-success btn-sm" onclick="goToDashboard()">
-                                <i class="fas fa-chart-line me-1"></i>Ver Dashboard
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Widget Container -->
-                    <div id="widget-container">
-                        <div class="text-center">
-                            <button id="open-widget-btn" class="btn btn-primary btn-lg d-none" onclick="openWidgetManually()">
-                                <i class="fas fa-university me-2"></i>🇨🇱 Conectar mi Banco Chileno
-                            </button>
-                            <p class="text-muted mt-2 d-none" id="widget-instructions">
-                                Haz clic para iniciar la conexión segura con tu banco
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Back Button -->
-                    <div class="text-center mt-4">
-                        <a href="{{ url_for('fintoc_dashboard') }}" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Security Info -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="card border-0 bg-light">
-                        <div class="card-body">
-                            <h6 class="text-center mb-3">
-                                <i class="fas fa-shield-alt text-success me-2"></i>
-                                Tu Seguridad es Nuestra Prioridad
-                            </h6>
-                            <div class="row text-center">
-                                <div class="col-md-4">
-                                    <i class="fas fa-lock fs-4 text-primary mb-2"></i>
-                                    <p class="small mb-0"><strong>Encriptación Bancaria</strong><br>SSL 256-bit</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <i class="fas fa-user-shield fs-4 text-primary mb-2"></i>
-                                    <p class="small mb-0"><strong>Sin Almacenamiento</strong><br>No guardamos credenciales</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <i class="fas fa-certificate fs-4 text-primary mb-2"></i>
-                                    <p class="small mb-0"><strong>Cumplimiento</strong><br>Estándares PSD2</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0">
+            <i class="fas fa-university me-2"></i>
+            🇨🇱 Conectar Banco Chileno
+          </h4>
         </div>
+        <div class="card-body">
+          <!-- Loading Container -->
+          <div id="loading-container" class="text-center mb-4">
+            <div class="spinner-border text-primary mb-3" role="status">
+              <span class="visually-hidden">Cargando widget...</span>
+            </div>
+            <p class="text-muted">
+              Iniciando conexión segura con tu banco chileno...
+            </p>
+          </div>
+
+          <!-- Error Container -->
+          <div
+            id="error-container"
+            class="alert alert-danger d-none"
+            role="alert"
+          >
+            <h6>
+              <i class="fas fa-exclamation-triangle me-2"></i>Error de Conexión
+            </h6>
+            <p id="error-message" class="mb-2"></p>
+            <button
+              class="btn btn-outline-danger btn-sm"
+              onclick="retryConnection()"
+            >
+              <i class="fas fa-redo me-1"></i>Intentar Nuevamente
+            </button>
+          </div>
+
+          <!-- Success Container -->
+          <div
+            id="success-container"
+            class="alert alert-success d-none"
+            role="alert"
+          >
+            <h6><i class="fas fa-check-circle me-2"></i>¡Conexión Exitosa!</h6>
+            <p class="mb-2">
+              Tu cuenta bancaria ha sido conectada exitosamente.
+            </p>
+            <div class="d-flex gap-2">
+              <button class="btn btn-success btn-sm" onclick="goToDashboard()">
+                <i class="fas fa-chart-line me-1"></i>Ver Dashboard
+              </button>
+            </div>
+          </div>
+
+          <!-- Widget Container -->
+          <div id="widget-container">
+            <div class="text-center">
+              <button
+                id="open-widget-btn"
+                class="btn btn-primary btn-lg d-none"
+                onclick="openWidgetManually()"
+              >
+                <i class="fas fa-university me-2"></i>🇨🇱 Conectar mi Banco
+                Chileno
+              </button>
+              <p class="text-muted mt-2 d-none" id="widget-instructions">
+                Haz clic para iniciar la conexión segura con tu banco
+              </p>
+            </div>
+          </div>
+
+          <!-- Back Button -->
+          <div class="text-center mt-4">
+            <a
+              href="{{ url_for('fintoc_dashboard') }}"
+              class="btn btn-outline-secondary"
+            >
+              <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security Info -->
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="card border-0 bg-light">
+            <div class="card-body">
+              <h6 class="text-center mb-3">
+                <i class="fas fa-shield-alt text-success me-2"></i>
+                Tu Seguridad es Nuestra Prioridad
+              </h6>
+              <div class="row text-center">
+                <div class="col-md-4">
+                  <i class="fas fa-lock fs-4 text-primary mb-2"></i>
+                  <p class="small mb-0">
+                    <strong>Encriptación Bancaria</strong><br />SSL 256-bit
+                  </p>
+                </div>
+                <div class="col-md-4">
+                  <i class="fas fa-user-shield fs-4 text-primary mb-2"></i>
+                  <p class="small mb-0">
+                    <strong>Sin Almacenamiento</strong><br />No guardamos
+                    credenciales
+                  </p>
+                </div>
+                <div class="col-md-4">
+                  <i class="fas fa-certificate fs-4 text-primary mb-2"></i>
+                  <p class="small mb-0">
+                    <strong>Cumplimiento</strong><br />Estándares PSD2
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Fintoc Widget SDK -->
 <script src="https://js.fintoc.com/v1/"></script>
 
 <script>
-// Configuración del widget
-const WIDGET_CONFIG = {
-    widgetToken: '{{ widget_token }}',
-    publicKey: '{{ public_key }}',
-    country: '{{ country }}'
-};
+  // Configuración del widget
+  const WIDGET_CONFIG = {
+    widgetToken: "{{ widget_token }}",
+    publicKey: "{{ public_key }}",
+    country: "{{ country }}",
+  };
 
-// Estado del widget
-let widgetInstance = null;
-let isWidgetLoaded = false;
-let linkCreated = false;
-let exchangeTokenTimeout = null;
+  // Estado del widget
+  let widgetInstance = null;
+  let isWidgetLoaded = false;
+  let linkCreated = false;
+  let exchangeTokenTimeout = null;
 
-// Inicializar cuando se carga la página
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Initializing Fintoc widget...');
-    console.log('Config:', {
-        widgetToken: WIDGET_CONFIG.widgetToken ? WIDGET_CONFIG.widgetToken.substring(0, 20) + '...' : 'NULL',
-        publicKey: WIDGET_CONFIG.publicKey ? WIDGET_CONFIG.publicKey.substring(0, 20) + '...' : 'NOT_SET',
-        country: WIDGET_CONFIG.country
+  // Inicializar cuando se carga la página
+  document.addEventListener("DOMContentLoaded", function () {
+    console.log("Initializing Fintoc widget...");
+    console.log("Config:", {
+      widgetToken: WIDGET_CONFIG.widgetToken
+        ? WIDGET_CONFIG.widgetToken.substring(0, 20) + "..."
+        : "NULL",
+      publicKey: WIDGET_CONFIG.publicKey
+        ? WIDGET_CONFIG.publicKey.substring(0, 20) + "..."
+        : "NOT_SET",
+      country: WIDGET_CONFIG.country,
     });
-    
+
     // Validaciones iniciales
-    if (!WIDGET_CONFIG.widgetToken || WIDGET_CONFIG.widgetToken === 'None') {
-        showError('Token del widget no disponible. Por favor, recarga la página.');
-        return;
+    if (!WIDGET_CONFIG.widgetToken || WIDGET_CONFIG.widgetToken === "None") {
+      showError(
+        "Token del widget no disponible. Por favor, recarga la página."
+      );
+      return;
     }
 
-    if (!WIDGET_CONFIG.publicKey || WIDGET_CONFIG.publicKey === 'None' || WIDGET_CONFIG.publicKey === 'NOT_SET') {
-        showError('Clave pública no configurada. Verifica la configuración de Fintoc.');
-        return;
+    if (
+      !WIDGET_CONFIG.publicKey ||
+      WIDGET_CONFIG.publicKey === "None" ||
+      WIDGET_CONFIG.publicKey === "NOT_SET"
+    ) {
+      showError(
+        "Clave pública no configurada. Verifica la configuración de Fintoc."
+      );
+      return;
     }
 
     // Verificar que el SDK esté cargado - con retry
     let sdkCheckCount = 0;
     const maxSdkChecks = 10;
-    
+
     function checkSDKLoaded() {
-        sdkCheckCount++;
-        console.log(`Checking Fintoc SDK... attempt ${sdkCheckCount}`);
-        
-        if (typeof Fintoc !== 'undefined') {
-            console.log('Fintoc SDK loaded successfully');
-            initializeWidget();
-        } else if (sdkCheckCount < maxSdkChecks) {
-            console.log(`Fintoc SDK not ready, retrying in 500ms...`);
-            setTimeout(checkSDKLoaded, 500);
-        } else {
-            console.error('Fintoc SDK failed to load after multiple attempts');
-            showError('Error al cargar el SDK de Fintoc. Verifica tu conexión a internet y recarga la página.');
-        }
+      sdkCheckCount++;
+      console.log(`Checking Fintoc SDK... attempt ${sdkCheckCount}`);
+
+      if (typeof Fintoc !== "undefined") {
+        console.log("Fintoc SDK loaded successfully");
+        initializeWidget();
+      } else if (sdkCheckCount < maxSdkChecks) {
+        console.log(`Fintoc SDK not ready, retrying in 500ms...`);
+        setTimeout(checkSDKLoaded, 500);
+      } else {
+        console.error("Fintoc SDK failed to load after multiple attempts");
+        showError(
+          "Error al cargar el SDK de Fintoc. Verifica tu conexión a internet y recarga la página."
+        );
+      }
     }
-    
+
     // Iniciar verificación del SDK
     checkSDKLoaded();
-});
+  });
 
-function initializeWidget() {
+  function initializeWidget() {
     try {
-        console.log('Creating Fintoc widget instance...');
-        
-        // Configurar event listeners para comunicación con widget
-        setupWidgetEventListeners();
-        
-        const config = {
-            publicKey: WIDGET_CONFIG.publicKey,
-            widgetToken: WIDGET_CONFIG.widgetToken
-            // Sin callbacks - usaremos event listeners
-        };
-        
-        console.log('Widget config:', {
-            publicKey: config.publicKey ? config.publicKey.substring(0, 20) + '...' : 'MISSING',
-            widgetToken: config.widgetToken ? config.widgetToken.substring(0, 20) + '...' : 'MISSING'
-        });
-        
-        // Crear instancia del widget
-        widgetInstance = Fintoc.create(config);
-        
-        if (widgetInstance) {
-            console.log('Widget instance created successfully');
-            isWidgetLoaded = true;
-            
-            // Mostrar el botón después de un pequeño delay para asegurar que el DOM esté listo
-            setTimeout(() => {
-                hideLoading();
-                showWidgetButton();
-            }, 500);
-        } else {
-            throw new Error('Widget instance creation failed');
-        }
-        
+      console.log("Creating Fintoc widget instance...");
+
+      // Configurar event listeners para comunicación con widget
+      setupWidgetEventListeners();
+
+      const config = {
+        publicKey: WIDGET_CONFIG.publicKey,
+        widgetToken: WIDGET_CONFIG.widgetToken,
+        // Sin callbacks - usaremos event listeners
+      };
+
+      console.log("Widget config:", {
+        publicKey: config.publicKey
+          ? config.publicKey.substring(0, 20) + "..."
+          : "MISSING",
+        widgetToken: config.widgetToken
+          ? config.widgetToken.substring(0, 20) + "..."
+          : "MISSING",
+      });
+
+      // Crear instancia del widget
+      widgetInstance = Fintoc.create(config);
+
+      if (widgetInstance) {
+        console.log("Widget instance created successfully");
+        isWidgetLoaded = true;
+
+        // Mostrar el botón después de un pequeño delay para asegurar que el DOM esté listo
+        setTimeout(() => {
+          hideLoading();
+          showWidgetButton();
+        }, 500);
+      } else {
+        throw new Error("Widget instance creation failed");
+      }
     } catch (error) {
-        console.error('Error creating widget:', error);
-        showError('Error al crear el widget: ' + error.message);
+      console.error("Error creating widget:", error);
+      showError("Error al crear el widget: " + error.message);
     }
-}
+  }
 
-function setupWidgetEventListeners() {
-    console.log('Setting up widget event listeners...');
-    
+  function setupWidgetEventListeners() {
+    console.log("Setting up widget event listeners...");
+
     // Listener para mensajes del widget
-    window.addEventListener('message', function(event) {
-        console.log('Received message from widget:', event);
-        
-        // Verificar origen por seguridad
-        if (event.origin !== 'https://wizard.fintoc.com' && 
-            event.origin !== 'https://js.fintoc.com') {
-            console.log('Message from unauthorized origin:', event.origin);
-            return;
-        }
-        
-        const data = event.data;
-        
-        if (!data || typeof data !== 'object') {
-            console.log('Invalid message data:', data);
-            return;
-        }
-        
-        console.log('Processing widget message:', data);
-        
-        // Procesar diferentes tipos de mensajes
-        switch(data.type) {
-            case 'success':
-                console.log('Widget success event:', data);
-                handleWidgetSuccess(data.payload || data);
-                break;
-                
-            case 'error':
-                console.log('Widget error event:', data);
-                handleWidgetError(data.payload || data.error || data);
-                break;
-                
-            case 'exit':
-                console.log('Widget exit event:', data);
-                handleWidgetExit(data.error || null);
-                break;
-                
-            case 'event':
-                console.log('Widget event:', data);
-                handleWidgetEvent(data.eventName || data.name, data.payload || data);
-                break;
-                
-            case 'WIDGET_SUCCEEDED':
-                console.log('Widget succeeded event:', data);
-                // Verificar si hay exchangeToken o linkIntent
-                if (data.linkIntent || data.payload) {
-                    handleWidgetSuccess(data.linkIntent || data.payload || data);
-                } else {
-                    console.log('Widget succeeded but no exchange data found');
-                }
-                break;
-                
-            case 'WIDGET_READY':
-                console.log('Widget ready message:', data);
-                hideLoading();
-                showWidgetButton();
-                break;
-                
-            case 'WIDGET_EVENT':
-                console.log('Widget event message:', data);
-                
-                // Procesar eventos específicos
-                if (data.eventName === 'link_created' && data.metadata) {
-                    console.log('Link created successfully, processing...', data.metadata);
-                    linkCreated = true;
-                    
-                    // El link se creó, ahora necesitamos el exchange token
-                    showProcessing('Finalizando conexión bancaria...');
-                    
-                    // Configurar timeout para obtener el exchange token
-                    if (exchangeTokenTimeout) {
-                        clearTimeout(exchangeTokenTimeout);
-                    }
-                    
-                    exchangeTokenTimeout = setTimeout(() => {
-                        console.log('Timeout waiting for exchange token, trying to close widget...');
-                        
-                        // Intentar cerrar el widget manualmente para forzar el exchange token
-                        if (widgetInstance && typeof widgetInstance.close === 'function') {
-                            try {
-                                widgetInstance.close();
-                            } catch (error) {
-                                console.error('Error closing widget:', error);
-                            }
-                        }
-                        
-                        // Si aún no tenemos exchange token, mostrar error
-                        setTimeout(() => {
-                            if (!linkCreated || !document.getElementById('success-container').classList.contains('d-none')) {
-                                showError('El enlace se creó pero no se recibió el token de intercambio. Intenta conectar nuevamente.');
-                            }
-                        }, 2000);
-                        
-                    }, 10000); // 10 segundos de timeout
-                    
-                } else if (data.eventName === 'on_authentication_form') {
-                    showProcessing('Autenticando con el banco...');
-                } else if (data.eventName === 'creating_link') {
-                    showProcessing('Creando enlace seguro...');
-                }
-                
-                handleWidgetEvent(data.eventName, data.metadata || data);
-                break;
-                
-            default:
-                console.log('Unknown widget message type:', data.type, data);
-                
-                // Intentar detectar éxito por la presencia de exchangeToken
-                if (data.exchangeToken || data.exchange_token) {
-                    console.log('Detected success by exchangeToken presence');
-                    handleWidgetSuccess(data);
-                } else if (data.linkIntent) {
-                    console.log('Detected success by linkIntent presence');
-                    handleWidgetSuccess(data.linkIntent);
-                } else if (data.error) {
-                    console.log('Detected error by error field presence');
-                    handleWidgetError(data.error);
-                }
-        }
-    }, false);
-    
-    console.log('Widget event listeners configured');
-}
+    window.addEventListener(
+      "message",
+      function (event) {
+        console.log("Received message from widget:", event);
 
-function handleWidgetSuccess(linkIntent) {
-    console.log('Widget success callback:', linkIntent);
-    
-    // Intentar extraer el exchange token de diferentes ubicaciones posibles
-    let exchangeToken = linkIntent.exchangeToken || 
-                       linkIntent.exchange_token ||
-                       (linkIntent.payload && linkIntent.payload.exchangeToken) ||
-                       (linkIntent.payload && linkIntent.payload.exchange_token);
-    
-    if (!exchangeToken) {
-        console.error('No exchange token found in success data:', linkIntent);
-        
-        // Si tenemos un linkIntent válido pero sin exchangeToken, 
-        // puede ser que necesitemos esperar a otro evento
-        if (linkIntent.id || linkIntent.linkId) {
-            console.log('Link Intent created, waiting for exchange token...');
-            showProcessing('Esperando token de intercambio...');
-            return;
+        // Verificar origen por seguridad
+        if (
+          event.origin !== "https://wizard.fintoc.com" &&
+          event.origin !== "https://js.fintoc.com"
+        ) {
+          console.log("Message from unauthorized origin:", event.origin);
+          return;
         }
-        
-        showError('Error: No se recibió el token de intercambio del widget.');
+
+        const data = event.data;
+
+        if (!data || typeof data !== "object") {
+          console.log("Invalid message data:", data);
+          return;
+        }
+
+        console.log("Processing widget message:", data);
+
+        // Procesar diferentes tipos de mensajes
+        switch (data.type) {
+          case "success":
+            console.log("Widget success event:", data);
+            handleWidgetSuccess(data.payload || data);
+            break;
+
+          case "error":
+            console.log("Widget error event:", data);
+            handleWidgetError(data.payload || data.error || data);
+            break;
+
+          case "exit":
+            console.log("Widget exit event:", data);
+            handleWidgetExit(data.error || null);
+            break;
+
+          case "event":
+            console.log("Widget event:", data);
+            handleWidgetEvent(
+              data.eventName || data.name,
+              data.payload || data
+            );
+            break;
+
+          case "WIDGET_SUCCEEDED":
+            console.log("Widget succeeded event:", data);
+            // Verificar si hay exchangeToken o linkIntent
+            if (data.linkIntent || data.payload) {
+              handleWidgetSuccess(data.linkIntent || data.payload || data);
+            } else {
+              console.log("Widget succeeded but no exchange data found");
+            }
+            break;
+
+          case "WIDGET_READY":
+            console.log("Widget ready message:", data);
+            hideLoading();
+            showWidgetButton();
+            break;
+
+          case "WIDGET_EVENT":
+            console.log("Widget event message:", data);
+
+            // Procesar eventos específicos
+            if (data.eventName === "link_created" && data.metadata) {
+              console.log(
+                "Link created successfully, processing...",
+                data.metadata
+              );
+              linkCreated = true;
+
+              // El link se creó, ahora necesitamos el exchange token
+              showProcessing("Finalizando conexión bancaria...");
+
+              // Configurar timeout para obtener el exchange token
+              if (exchangeTokenTimeout) {
+                clearTimeout(exchangeTokenTimeout);
+              }
+
+              exchangeTokenTimeout = setTimeout(() => {
+                console.log(
+                  "Timeout waiting for exchange token, trying to close widget..."
+                );
+
+                // Intentar cerrar el widget manualmente para forzar el exchange token
+                if (
+                  widgetInstance &&
+                  typeof widgetInstance.close === "function"
+                ) {
+                  try {
+                    widgetInstance.close();
+                  } catch (error) {
+                    console.error("Error closing widget:", error);
+                  }
+                }
+
+                // Si aún no tenemos exchange token, mostrar error
+                setTimeout(() => {
+                  if (
+                    !linkCreated ||
+                    !document
+                      .getElementById("success-container")
+                      .classList.contains("d-none")
+                  ) {
+                    showError(
+                      "El enlace se creó pero no se recibió el token de intercambio. Intenta conectar nuevamente."
+                    );
+                  }
+                }, 2000);
+              }, 10000); // 10 segundos de timeout
+            } else if (data.eventName === "on_authentication_form") {
+              showProcessing("Autenticando con el banco...");
+            } else if (data.eventName === "creating_link") {
+              showProcessing("Creando enlace seguro...");
+            }
+
+            handleWidgetEvent(data.eventName, data.metadata || data);
+            break;
+
+          default:
+            console.log("Unknown widget message type:", data.type, data);
+
+            // Intentar detectar éxito por la presencia de exchangeToken
+            if (data.exchangeToken || data.exchange_token) {
+              console.log("Detected success by exchangeToken presence");
+              handleWidgetSuccess(data);
+            } else if (data.linkIntent) {
+              console.log("Detected success by linkIntent presence");
+              handleWidgetSuccess(data.linkIntent);
+            } else if (data.error) {
+              console.log("Detected error by error field presence");
+              handleWidgetError(data.error);
+            }
+        }
+      },
+      false
+    );
+
+    console.log("Widget event listeners configured");
+  }
+
+  function handleWidgetSuccess(linkIntent) {
+    console.log("Widget success callback:", linkIntent);
+
+    // Intentar extraer el exchange token de diferentes ubicaciones posibles
+    let exchangeToken =
+      linkIntent.exchangeToken ||
+      linkIntent.exchange_token ||
+      (linkIntent.payload && linkIntent.payload.exchangeToken) ||
+      (linkIntent.payload && linkIntent.payload.exchange_token);
+
+    if (!exchangeToken) {
+      console.error("No exchange token found in success data:", linkIntent);
+
+      // Si tenemos un linkIntent válido pero sin exchangeToken,
+      // puede ser que necesitemos esperar a otro evento
+      if (linkIntent.id || linkIntent.linkId) {
+        console.log("Link Intent created, waiting for exchange token...");
+        showProcessing("Esperando token de intercambio...");
         return;
+      }
+
+      showError("Error: No se recibió el token de intercambio del widget.");
+      return;
     }
-    
-    console.log('Exchange token received:', exchangeToken.substring(0, 20) + '...');
-    
+
+    console.log(
+      "Exchange token received:",
+      exchangeToken.substring(0, 20) + "..."
+    );
+
     // Enviar exchange token al backend
     sendExchangeTokenToBackend(exchangeToken);
-}
+  }
 
-function handleWidgetError(error) {
-    console.error('Widget error callback:', error);
-    
-    let message = 'Error en el widget de Fintoc';
-    
+  function handleWidgetError(error) {
+    console.error("Widget error callback:", error);
+
+    let message = "Error en el widget de Fintoc";
+
     if (error && error.message) {
-        message = error.message;
-    } else if (typeof error === 'string') {
-        message = error;
+      message = error.message;
+    } else if (typeof error === "string") {
+      message = error;
     } else if (error && error.type) {
-        switch (error.type) {
-            case 'invalid_credentials':
-                message = 'Credenciales incorrectas. Verifica tu usuario y contraseña.';
-                break;
-            case 'institution_unavailable':
-                message = 'Tu banco no está disponible temporalmente. Intenta más tarde.';
-                break;
-            case 'timeout':
-                message = 'Tiempo de espera agotado. Verifica tu conexión a internet.';
-                break;
-            default:
-                message = 'Error del tipo: ' + error.type;
-        }
+      switch (error.type) {
+        case "invalid_credentials":
+          message =
+            "Credenciales incorrectas. Verifica tu usuario y contraseña.";
+          break;
+        case "institution_unavailable":
+          message =
+            "Tu banco no está disponible temporalmente. Intenta más tarde.";
+          break;
+        case "timeout":
+          message =
+            "Tiempo de espera agotado. Verifica tu conexión a internet.";
+          break;
+        default:
+          message = "Error del tipo: " + error.type;
+      }
     }
-    
+
     showError(message);
-}
+  }
 
-function handleWidgetExit(error) {
-    console.log('Widget exit callback:', error);
-    
+  function handleWidgetExit(error) {
+    console.log("Widget exit callback:", error);
+
     if (error) {
-        handleWidgetError(error);
+      handleWidgetError(error);
     } else {
-        showError('Proceso cancelado por el usuario. Puedes intentar nuevamente.');
+      showError(
+        "Proceso cancelado por el usuario. Puedes intentar nuevamente."
+      );
     }
-}
+  }
 
-function handleWidgetEvent(eventName, data) {
-    console.log('Widget event:', eventName, data);
-    
+  function handleWidgetEvent(eventName, data) {
+    console.log("Widget event:", eventName, data);
+
     // Manejo de eventos del widget si es necesario
-    if (eventName === 'loaded') {
-        console.log('Widget loaded successfully');
+    if (eventName === "loaded") {
+      console.log("Widget loaded successfully");
     }
-}
+  }
 
-function sendExchangeTokenToBackend(exchangeToken) {
-    console.log('Sending exchange token to backend...');
-    
+  function sendExchangeTokenToBackend(exchangeToken) {
+    console.log("Sending exchange token to backend...");
+
     // Limpiar timeout si existe
     if (exchangeTokenTimeout) {
-        clearTimeout(exchangeTokenTimeout);
-        exchangeTokenTimeout = null;
+      clearTimeout(exchangeTokenTimeout);
+      exchangeTokenTimeout = null;
     }
-    
+
     // Mostrar loading
-    showProcessing('Procesando conexión bancaria...');
-    
-    fetch('/fintoc/exchange', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-            exchange_token: exchangeToken 
-        })
+    showProcessing("Procesando conexión bancaria...");
+
+    fetch("/fintoc/exchange", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        exchange_token: exchangeToken,
+      }),
     })
-    .then(response => {
+      .then((response) => {
         if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
+          throw new Error("HTTP " + response.status);
         }
         return response.json();
-    })
-    .then(data => {
-        console.log('Backend response:', data);
-        
+      })
+      .then((data) => {
+        console.log("Backend response:", data);
+
         if (data.success) {
-            showSuccess('¡Cuenta bancaria conectada exitosamente!');
+          showSuccess("¡Cuenta bancaria conectada exitosamente!");
         } else {
-            showError('Error al procesar la conexión: ' + (data.error || 'Error desconocido'));
+          showError(
+            "Error al procesar la conexión: " +
+              (data.error || "Error desconocido")
+          );
         }
-    })
-    .catch(error => {
-        console.error('Network error:', error);
-        showError('Error de red al procesar la conexión: ' + error.message);
-    });
-}
+      })
+      .catch((error) => {
+        console.error("Network error:", error);
+        showError("Error de red al procesar la conexión: " + error.message);
+      });
+  }
 
-function showLoading() {
-    document.getElementById('loading-container').classList.remove('d-none');
-    document.getElementById('error-container').classList.add('d-none');
-    document.getElementById('success-container').classList.add('d-none');
-}
+  function showLoading() {
+    document.getElementById("loading-container").classList.remove("d-none");
+    document.getElementById("error-container").classList.add("d-none");
+    document.getElementById("success-container").classList.add("d-none");
+  }
 
-function hideLoading() {
-    document.getElementById('loading-container').classList.add('d-none');
-}
+  function hideLoading() {
+    document.getElementById("loading-container").classList.add("d-none");
+  }
 
-function showProcessing(message) {
-    const loading = document.getElementById('loading-container');
+  function showProcessing(message) {
+    const loading = document.getElementById("loading-container");
     loading.innerHTML = `
         <div class="text-center">
             <div class="spinner-border text-success mb-3" role="status">
@@ -468,94 +540,98 @@ function showProcessing(message) {
             <p class="text-muted">${message}</p>
         </div>
     `;
-    loading.classList.remove('d-none');
-    document.getElementById('error-container').classList.add('d-none');
-    document.getElementById('success-container').classList.add('d-none');
-}
+    loading.classList.remove("d-none");
+    document.getElementById("error-container").classList.add("d-none");
+    document.getElementById("success-container").classList.add("d-none");
+  }
 
-function showError(message) {
+  function showError(message) {
     hideLoading();
-    document.getElementById('error-message').textContent = message;
-    document.getElementById('error-container').classList.remove('d-none');
-    document.getElementById('success-container').classList.add('d-none');
-}
+    document.getElementById("error-message").textContent = message;
+    document.getElementById("error-container").classList.remove("d-none");
+    document.getElementById("success-container").classList.add("d-none");
+  }
 
-function showSuccess(message) {
+  function showSuccess(message) {
     hideLoading();
-    document.getElementById('success-container').querySelector('p').textContent = message;
-    document.getElementById('success-container').classList.remove('d-none');
-    document.getElementById('error-container').classList.add('d-none');
-}
+    document
+      .getElementById("success-container")
+      .querySelector("p").textContent = message;
+    document.getElementById("success-container").classList.remove("d-none");
+    document.getElementById("error-container").classList.add("d-none");
+  }
 
-function retryConnection() {
+  function retryConnection() {
     showLoading();
     setTimeout(() => {
-        initializeWidget();
+      initializeWidget();
     }, 1000);
-}
+  }
 
-function goToDashboard() {
+  function goToDashboard() {
     window.location.href = '{{ url_for("fintoc_dashboard") }}';
-}
+  }
 
-function showWidgetButton() {
-    console.log('Showing widget button...');
-    
-    const button = document.getElementById('open-widget-btn');
-    const instructions = document.getElementById('widget-instructions');
-    
+  function showWidgetButton() {
+    console.log("Showing widget button...");
+
+    const button = document.getElementById("open-widget-btn");
+    const instructions = document.getElementById("widget-instructions");
+
     if (button) {
-        button.classList.remove('d-none');
-        console.log('Widget button shown');
+      button.classList.remove("d-none");
+      console.log("Widget button shown");
     } else {
-        console.error('Widget button element not found');
+      console.error("Widget button element not found");
     }
-    
+
     if (instructions) {
-        instructions.classList.remove('d-none');
-        console.log('Widget instructions shown');
+      instructions.classList.remove("d-none");
+      console.log("Widget instructions shown");
     } else {
-        console.error('Widget instructions element not found');
+      console.error("Widget instructions element not found");
     }
-}
+  }
 
-function hideWidgetButton() {
-    document.getElementById('open-widget-btn').classList.add('d-none');
-    document.getElementById('widget-instructions').classList.add('d-none');
-}
+  function hideWidgetButton() {
+    document.getElementById("open-widget-btn").classList.add("d-none");
+    document.getElementById("widget-instructions").classList.add("d-none");
+  }
 
-function openWidgetManually() {
-    console.log('Opening widget manually...');
-    console.log('Widget instance:', widgetInstance);
-    console.log('Widget loaded:', isWidgetLoaded);
-    
+  function openWidgetManually() {
+    console.log("Opening widget manually...");
+    console.log("Widget instance:", widgetInstance);
+    console.log("Widget loaded:", isWidgetLoaded);
+
     if (!widgetInstance) {
-        console.error('Widget not initialized');
-        showError('Widget no inicializado. Por favor, recarga la página.');
-        return;
+      console.error("Widget not initialized");
+      showError("Widget no inicializado. Por favor, recarga la página.");
+      return;
     }
-    
-    if (typeof widgetInstance.open !== 'function') {
-        console.error('Widget open method not available');
-        console.error('Available methods:', Object.getOwnPropertyNames(widgetInstance));
-        showError('Método open() no disponible en el widget.');
-        return;
+
+    if (typeof widgetInstance.open !== "function") {
+      console.error("Widget open method not available");
+      console.error(
+        "Available methods:",
+        Object.getOwnPropertyNames(widgetInstance)
+      );
+      showError("Método open() no disponible en el widget.");
+      return;
     }
-    
+
     try {
-        console.log('Hiding button and showing processing...');
-        hideWidgetButton();
-        showProcessing('Abriendo conexión bancaria...');
-        
-        console.log('Calling widget.open()...');
-        widgetInstance.open();
-        console.log('Widget.open() called successfully');
-        
+      console.log("Hiding button and showing processing...");
+      hideWidgetButton();
+      showProcessing("Abriendo conexión bancaria...");
+
+      console.log("Calling widget.open()...");
+      widgetInstance.open();
+      console.log("Widget.open() called successfully");
     } catch (error) {
-        console.error('Exception opening widget:', error);
-        showError('Error al abrir el widget: ' + error.message);
-        showWidgetButton();
+      console.error("Exception opening widget:", error);
+      showError("Error al abrir el widget: " + error.message);
+      showWidgetButton();
     }
-}
+  }
 </script>
 {% endblock %}
