@@ -243,8 +243,23 @@ def fintoc_dashboard():
             links.append(link_info)
 
             # Obtener cuentas del link
+            app.logger.info(f"Attempting to get accounts for link: {link_token}")
             accounts = service.get_link_accounts(link_token)
+            app.logger.info(f"Retrieved {len(accounts) if accounts else 0} accounts")
+            
             if accounts:
+                # Para cada cuenta, obtener también movimientos recientes
+                for account in accounts:
+                    account_id = account.get('id')
+                    if account_id:
+                        app.logger.info(f"Getting recent movements for account {account_id}")
+                        # Obtener movimientos de los últimos 30 días
+                        from datetime import datetime, timedelta
+                        since_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+                        movements = service.get_account_movements_with_link(account_id, link_token, limit=10, since=since_date)
+                        account['recent_movements'] = movements
+                        app.logger.info(f"Found {len(movements)} recent movements for account {account_id}")
+                
                 # Obtener resumen del link
                 summary = service.get_link_summary(link_token)
                 if not summary:
@@ -270,6 +285,13 @@ def fintoc_dashboard():
                 )
             else:
                 app.logger.warning(f"No accounts found for link {link_token}")
+                # Intentar re-obtener el link para debugging
+                app.logger.info(f"Attempting to verify link {link_token} exists...")
+                try:
+                    verify_response = service.verify_link(link_token)
+                    app.logger.info(f"Link verification result: {verify_response}")
+                except Exception as e:
+                    app.logger.error(f"Error verifying link: {str(e)}")
 
         except Exception as e:
             app.logger.error(f"Error loading financial data: {str(e)}")
@@ -380,9 +402,14 @@ def fintoc_exchange():
                 {"success": False, "error": "Error al intercambiar el token"}
             )
 
-        # Guardar link_token en la sesión o base de datos
-        session["fintoc_link_token"] = link.get("id")
+        # Guardar link_token completo en la sesión
+        link_token = link.get("link_token") or link.get("id")
+        
+        session["fintoc_link_token"] = link_token
         session["fintoc_link_data"] = link
+        
+        app.logger.info(f"Stored link_token: {link_token[:30]}..." if link_token else "No link_token")
+        app.logger.info(f"Full link data: {link}")
 
         app.logger.info(f"Link created successfully: {link.get('id')}")
 
@@ -462,8 +489,15 @@ def api_fintoc_movements(account_id):
     since = request.args.get("since")  # YYYY-MM-DD format
     until = request.args.get("until")  # YYYY-MM-DD format
 
-    movements = fintoc_service.get_movements(
-        account_id, limit=limit, since=since, until=until
+    # Get link_token from session
+    link_token = session.get("fintoc_link_token")
+    if not link_token:
+        return jsonify({"error": "No link token found in session"}), 400
+
+    app.logger.info(f"API: Getting movements for account {account_id} with link_token {link_token[:30]}...")
+
+    movements = fintoc_service.get_account_movements_with_link(
+        account_id, link_token, limit=limit, since=since, until=until
     )
 
     return jsonify(

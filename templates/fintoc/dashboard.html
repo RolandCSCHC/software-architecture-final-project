@@ -53,7 +53,7 @@
             <div class="col-12 mb-3">
               <h3 class="text-primary">
                 {% if data.summary.currency == 'CLP' %} ${{
-                "{:,.0f}".format(data.summary.total_balance) }} CLP {% elif
+                "{:,.0f}".format(data.summary.total_balance|int) }} CLP {% elif
                 data.summary.currency == 'USD' %} ${{
                 "{:,.2f}".format(data.summary.total_balance / 100) }} USD {%
                 else %} {{ "{:,.2f}".format(data.summary.total_balance / 100) }}
@@ -133,23 +133,128 @@
     </div>
   </div>
 
-  <!-- Recent Transactions -->
+  <!-- Accounts Detail Section with Recent Transactions -->
+  {% if financial_data %}
+  {% for data in financial_data %}
+  {% if data.accounts %}
   <div class="row mt-4">
     <div class="col-12">
       <div class="card">
         <div class="card-header">
-          <h5 class="card-title mb-0">Recent Transactions</h5>
+          <h5 class="card-title mb-0">
+            <i class="fas fa-credit-card me-2"></i>
+            Cuentas de {{ data.link.institution.name if data.link.institution else 'Banco' }}
+          </h5>
         </div>
         <div class="card-body">
-          <div id="transactions-container">
-            <p class="text-muted">
-              Select an account to view recent transactions.
-            </p>
+          {% for account in data.accounts %}
+          <div class="card mb-3">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                  <h6 class="mb-0">{{ account.name }}</h6>
+                  <small class="text-muted">{{ account.type }} • {{ account.number }}</small>
+                </div>
+                <div class="col-md-6 text-md-end">
+                  <h4 class="mb-0 {% if account.balance.current >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    {% if account.currency == 'CLP' %}
+                      ${{ "{:,.0f}".format(account.balance.current|int) }} CLP
+                    {% else %}
+                      {{ "{:,.2f}".format(account.balance.current / 100) }} {{ account.currency }}
+                    {% endif %}
+                  </h4>
+                </div>
+              </div>
+            </div>
+            {% if account.recent_movements %}
+            <div class="card-body">
+              <h6 class="card-subtitle mb-3 text-muted">
+                <i class="fas fa-history me-2"></i>Transacciones Recientes (últimos 30 días)
+              </h6>
+              {% if account.recent_movements|length > 0 %}
+              <div class="table-responsive">
+                <table class="table table-hover table-sm">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Descripción</th>
+                      <th>Tipo</th>
+                      <th class="text-end">Monto</th>
+                      <th class="text-center">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for movement in account.recent_movements[:10] %}
+                    <tr>
+                      <td>
+                        <small>{{ movement.post_date }}</small>
+                      </td>
+                      <td>
+                        <div>{{ movement.description }}</div>
+                        {% if movement.comment %}
+                        <small class="text-muted">{{ movement.comment }}</small>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <span class="badge bg-secondary">{{ movement.type }}</span>
+                      </td>
+                      <td class="text-end {% if movement.amount >= 0 %}text-success{% else %}text-danger{% endif %}">
+                        <strong>
+                          {% if movement.currency == 'CLP' %}
+                            ${{ "{:,.0f}".format(movement.amount|int) }}
+                          {% else %}
+                            {{ "{:,.2f}".format(movement.amount / 100) }}
+                          {% endif %}
+                          {{ movement.currency }}
+                        </strong>
+                      </td>
+                      <td class="text-center">
+                        {% if movement.pending %}
+                          <span class="badge bg-warning">Pendiente</span>
+                        {% else %}
+                          <span class="badge bg-success">Completada</span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="text-center mt-3">
+                <button class="btn btn-outline-primary btn-sm" onclick="loadMoreTransactions('{{ account.id }}')">
+                  <i class="fas fa-plus me-1"></i>Ver Más Transacciones
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="refreshAccount('{{ account.id }}')">
+                  <i class="fas fa-sync-alt me-1"></i>Actualizar
+                </button>
+              </div>
+              {% else %}
+              <div class="text-center py-3">
+                <i class="fas fa-file-invoice text-muted fa-2x mb-2"></i>
+                <p class="text-muted mb-0">No se encontraron transacciones recientes</p>
+              </div>
+              {% endif %}
+            </div>
+            {% else %}
+            <div class="card-body">
+              <div class="text-center py-3">
+                <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                <span class="text-muted">Cargando transacciones...</span>
+                <button class="btn btn-outline-primary btn-sm ms-3" onclick="loadTransactions('{{ account.id }}')">
+                  <i class="fas fa-sync-alt me-1"></i>Cargar Transacciones
+                </button>
+              </div>
+            </div>
+            {% endif %}
           </div>
+          {% endfor %}
         </div>
       </div>
     </div>
   </div>
+  {% endif %}
+  {% endfor %}
+  {% endif %}
 
   {% endif %}
 </div>
@@ -240,27 +345,52 @@
 
   // Load transactions for a specific account
   function loadTransactions(accountId) {
-    const container = document.getElementById("transactions-container");
-    const modal = new bootstrap.Modal(document.getElementById("loadingModal"));
-
-    modal.show();
+    const button = event.target;
+    const originalText = button.innerHTML;
+    
+    button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Cargando...';
+    button.disabled = true;
 
     fetch(`/api/fintoc/movements/${accountId}?limit=20`)
       .then((response) => response.json())
       .then((data) => {
+        button.innerHTML = originalText;
+        button.disabled = false;
+        
+        if (data.status === "success") {
+          // Update the account card with transactions
+          updateAccountTransactions(accountId, data.movements);
+        } else {
+          showAlert('Error al cargar transacciones: ' + (data.error || 'Error desconocido'), 'danger');
+        }
+      })
+      .catch((error) => {
+        button.innerHTML = originalText;
+        button.disabled = false;
+        console.error("Error:", error);
+        showAlert('Error de conexión al cargar transacciones', 'danger');
+      });
+  }
+
+  // Load more transactions for a specific account
+  function loadMoreTransactions(accountId) {
+    const modal = new bootstrap.Modal(document.getElementById("loadingModal"));
+    modal.show();
+
+    fetch(`/api/fintoc/movements/${accountId}?limit=50`)
+      .then((response) => response.json())
+      .then((data) => {
         modal.hide();
         if (data.status === "success") {
-          displayTransactions(data.movements);
+          displayTransactionsModal(data.movements, accountId);
         } else {
-          container.innerHTML =
-            '<div class="alert alert-danger">Error loading transactions</div>';
+          showAlert('Error al cargar más transacciones', 'danger');
         }
       })
       .catch((error) => {
         modal.hide();
         console.error("Error:", error);
-        container.innerHTML =
-          '<div class="alert alert-danger">Error loading transactions</div>';
+        showAlert('Error de conexión', 'danger');
       });
   }
 
@@ -316,7 +446,7 @@
   // Format currency amounts
   function formatCurrency(amount, currency) {
     if (currency === "CLP") {
-      return `$${amount.toLocaleString()} CLP`;
+      return `$${Math.round(amount).toLocaleString('es-CL')} CLP`;
     } else if (currency === "USD") {
       return `$${(amount / 100).toFixed(2)} USD`;
     } else {
@@ -354,16 +484,109 @@
   // Refresh bank data for a link
   function refreshBankData(linkId) {
     // This would trigger refresh for all accounts in the link
-    // For now, we'll just show a message
+    showAlert('Actualización iniciada. Los datos se actualizarán en breve.', 'info');
+  }
+
+  // Update account transactions in the existing card
+  function updateAccountTransactions(accountId, movements) {
+    // This would update the specific account card with new transactions
+    // For now, show success message
+    showAlert('Transacciones cargadas exitosamente', 'success');
+  }
+
+  // Display transactions in a modal
+  function displayTransactionsModal(movements, accountId) {
+    // Create and show a modal with all transactions
+    const modalHtml = `
+      <div class="modal fade" id="transactionsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Todas las Transacciones</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              ${generateTransactionsTable(movements)}
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('transactionsModal');
+    if (existingModal) {
+      existingModal.remove();
+    }
+    
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('transactionsModal'));
+    modal.show();
+  }
+
+  // Generate transactions table HTML
+  function generateTransactionsTable(movements) {
+    if (movements.length === 0) {
+      return '<p class="text-muted text-center">No se encontraron transacciones.</p>';
+    }
+
+    let html = '<div class="table-responsive"><table class="table table-hover">';
+    html += '<thead><tr><th>Fecha</th><th>Descripción</th><th>Tipo</th><th class="text-end">Monto</th><th class="text-center">Estado</th></tr></thead><tbody>';
+
+    movements.forEach((movement) => {
+      const date = new Date(movement.post_date).toLocaleDateString('es-CL');
+      const amountClass = movement.amount >= 0 ? "text-success" : "text-danger";
+      const statusBadge = movement.pending
+        ? '<span class="badge bg-warning">Pendiente</span>'
+        : '<span class="badge bg-success">Completada</span>';
+
+      let formattedAmount;
+      if (movement.currency === 'CLP') {
+        formattedAmount = `$${Math.round(movement.amount).toLocaleString('es-CL')} CLP`;
+      } else {
+        formattedAmount = `${(movement.amount / 100).toFixed(2)} ${movement.currency}`;
+      }
+
+      html += `
+        <tr>
+          <td><small>${date}</small></td>
+          <td>
+            <div>${movement.description}</div>
+            ${movement.comment ? '<small class="text-muted">' + movement.comment + '</small>' : ''}
+          </td>
+          <td><span class="badge bg-secondary">${movement.type}</span></td>
+          <td class="text-end ${amountClass}"><strong>${formattedAmount}</strong></td>
+          <td class="text-center">${statusBadge}</td>
+        </tr>
+      `;
+    });
+
+    html += '</tbody></table></div>';
+    return html;
+  }
+
+  // Show alert message
+  function showAlert(message, type = 'info') {
     const alert = document.createElement("div");
-    alert.className = "alert alert-info alert-dismissible fade show";
+    alert.className = `alert alert-${type} alert-dismissible fade show`;
     alert.innerHTML = `
-        Refresh initiated for all accounts. Data will be updated shortly.
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
     document.querySelector(".container-fluid").prepend(alert);
 
-    setTimeout(() => alert.remove(), 3000);
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+      if (alert && alert.parentNode) {
+        alert.remove();
+      }
+    }, 5000);
   }
 </script>
 {% endblock %}
